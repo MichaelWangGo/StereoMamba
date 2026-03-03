@@ -10,12 +10,14 @@ class Feature_fusion(nn.Module):
         
         self.upsample_384 = nn.Sequential(
             nn.ConvTranspose2d(384, 128, 4, 4),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
+            nn.BatchNorm2d(128)
         )
 
         self.upsample_192 = nn.Sequential(
             nn.ConvTranspose2d(192, 128, 2, 2),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
+            nn.BatchNorm2d(128)
         )
 
         # Fusion of all levels: 3 * 128 = 384 channels
