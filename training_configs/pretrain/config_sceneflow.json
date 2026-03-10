@@ -7,7 +7,7 @@
     "seed": 666,
     "load_model": null,
     "dataset": "sceneflow",
-    "data_path":"/workspace/datasets/sceneflow",
+    "data_path":"/workspace/dataset/sceneflow",
     "trainlist":"/workspace/StereoMamba/datasets/filenames/sceneflow_training.txt",
     "testlist":"/workspace/StereoMamba/datasets/filenames/sceneflow_testing.txt",
     "ckpt_path": "/workspace/StereoMamba/checkpoints/pretrained_models/sceneflow",
@@ -19,7 +19,7 @@
     "max_disparity": 192,
 
     "batch_size": 8,
-    "test_batch_size": 8,
+    "test_batch_size": 6,
 
     "use_onecycle_lr": true,
     "lr": 0.00016,
