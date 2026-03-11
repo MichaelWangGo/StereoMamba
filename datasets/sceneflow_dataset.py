@@ -1,5 +1,6 @@
 import os
 import random
+import torch.nn.functional as F
 from torch.utils.data import Dataset
 from PIL import Image
 import numpy as np
@@ -7,10 +8,11 @@ from datasets.data_io import get_transform, read_all_lines, pfm_imread
 
 
 class SceneFlowDatset(Dataset):
-    def __init__(self, datapath, list_filename, training):
+    def __init__(self, datapath, list_filename, training, eval_pad_to=32):
         self.datapath = datapath
         self.left_filenames, self.right_filenames, self.disp_filenames = self.load_path(list_filename)
         self.training = training
+        self.eval_pad_to = eval_pad_to
 
     def load_path(self, list_filename):
         lines = read_all_lines(list_filename)
@@ -68,8 +70,30 @@ class SceneFlowDatset(Dataset):
             left_img = processed(left_img)
             right_img = processed(right_img)
 
-            return {"left": left_img,
-                    "right": right_img,
-                    "disparity": disparity,
-                    "top_pad": 0,
-                    "right_pad": 0}
+            top_pad = 0
+            right_pad = 0
+
+
+            # Pad to nearest multiple (ceil to multiple), default 32
+            if self.eval_pad_to is not None and self.eval_pad_to > 1:
+                h_tensor, w_tensor = left_img.shape[-2:]
+                top_pad = (self.eval_pad_to - (h_tensor % self.eval_pad_to)) % self.eval_pad_to
+                right_pad = (self.eval_pad_to - (w_tensor % self.eval_pad_to)) % self.eval_pad_to
+
+            if top_pad > 0 or right_pad > 0:
+                left_img = F.pad(left_img, (0, right_pad, 0, top_pad))
+                right_img = F.pad(right_img, (0, right_pad, 0, top_pad))
+                disparity = np.pad(
+                    disparity,
+                    ((0, top_pad), (0, right_pad)),
+                    mode="constant",
+                    constant_values=0,
+                ).astype(np.float32, copy=False)
+
+            return {
+                "left": left_img,
+                "right": right_img,
+                "disparity": disparity,
+                "top_pad": top_pad,
+                "right_pad": right_pad
+            }

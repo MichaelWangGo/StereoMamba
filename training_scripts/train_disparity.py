@@ -44,7 +44,7 @@ if __name__ == "__main__":
     # load data 
     StereoDataset = __datasets__[config.dataset]
     train_dataset = StereoDataset(config.data_path, config.trainlist, True)
-    test_dataset = StereoDataset(config.data_path, config.testlist, False)
+    test_dataset = StereoDataset(config.data_path, config.testlist, False, eval_pad_to=16)
     TrainImgLoader = DataLoader(train_dataset, config.batch_size, shuffle=True, num_workers=8, drop_last=True)
     TestImgLoader = DataLoader(test_dataset, config.test_batch_size, shuffle=False, num_workers=4, drop_last=False)
     
